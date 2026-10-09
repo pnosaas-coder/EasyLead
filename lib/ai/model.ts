@@ -10,7 +10,10 @@ export function getAIModel() {
     const openai = createOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
-    const modelSlug = process.env.AI_MODEL || 'gpt-4o';
+    let modelSlug = process.env.AI_MODEL || 'gpt-4o';
+    if (modelSlug.includes('claude') || modelSlug.includes('anthropic')) {
+      modelSlug = 'gpt-4o';
+    }
     return openai(modelSlug);
   }
 
@@ -25,8 +28,10 @@ export function getAIModel() {
       ? 'https://ai-gateway.vercel.sh'
       : undefined;
 
-    const modelSlug =
-      process.env.AI_MODEL || 'claude-3-5-sonnet-20241022';
+    let modelSlug = process.env.AI_MODEL || 'claude-3-5-sonnet-20241022';
+    if (modelSlug.startsWith('gpt-')) {
+      modelSlug = 'claude-3-5-sonnet-20241022';
+    }
 
     const anthropic = createAnthropic({
       apiKey,
