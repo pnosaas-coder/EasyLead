@@ -13,6 +13,8 @@ import { createClient } from '@/lib/supabase/server';
 import { MOCK_RECENT_SEARCHES } from '@/lib/mock-data';
 import { connection } from 'next/server';
 
+export const instant = false;
+
 export default async function SearchesPage() {
   await connection();
   const supabase = await createClient();

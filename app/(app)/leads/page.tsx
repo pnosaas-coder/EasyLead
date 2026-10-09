@@ -12,6 +12,8 @@ import { LeadsTable } from '@/components/leads-table';
 import { Lead } from '@/lib/types';
 import { connection } from 'next/server';
 
+export const instant = false;
+
 export default async function LeadsPage() {
   await connection();
   const supabase = await createClient();
