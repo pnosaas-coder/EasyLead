@@ -1,29 +1,40 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createOpenAI } from '@ai-sdk/openai';
 
 /**
- * Configure et retourne l'instance du modèle Claude routée via Vercel AI Gateway
+ * Configure et retourne l'instance du modèle d'IA (OpenAI GPT ou Anthropic Claude)
  */
 export function getAIModel() {
+  // 1. Détection OpenAI si une clé OpenAI est renseignée
+  if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== '') {
+    const openai = createOpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const modelSlug = process.env.AI_MODEL || 'gpt-4o';
+    return openai(modelSlug);
+  }
+
+  // 2. Détection Claude (Anthropic direct ou via Vercel AI Gateway)
   const apiKey =
     process.env.AI_GATEWAY_API_KEY ||
     process.env.ANTHROPIC_API_KEY;
 
-  const isUsingGateway = Boolean(process.env.AI_GATEWAY_API_KEY);
-  const baseURL = isUsingGateway
-    ? 'https://ai-gateway.vercel.sh'
-    : undefined;
+  if (apiKey && apiKey.trim() !== '') {
+    const isUsingGateway = Boolean(process.env.AI_GATEWAY_API_KEY);
+    const baseURL = isUsingGateway
+      ? 'https://ai-gateway.vercel.sh'
+      : undefined;
 
-  const modelSlug =
-    process.env.AI_MODEL || 'claude-3-5-sonnet-20241022';
+    const modelSlug =
+      process.env.AI_MODEL || 'claude-3-5-sonnet-20241022';
 
-  if (!apiKey || apiKey.trim() === '') {
-    return null;
+    const anthropic = createAnthropic({
+      apiKey,
+      baseURL,
+    });
+
+    return anthropic(modelSlug);
   }
 
-  const anthropic = createAnthropic({
-    apiKey,
-    baseURL,
-  });
-
-  return anthropic(modelSlug);
+  return null;
 }
