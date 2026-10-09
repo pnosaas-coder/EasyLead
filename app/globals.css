@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-serif), Georgia, serif;
+
+  --color-spruce-950: #061f18;
+  --color-spruce-900: #0b382c;
+  --color-spruce-850: #0f4335;
+  --color-spruce-800: #145040;
+  --color-spruce-700: #1b6753;
+  --color-spruce-600: #258169;
+  --color-spruce-500: #33a285;
+  --color-spruce-100: #e5f4ef;
+  --color-spruce-50: #f1f9f6;
+
+  --color-lime-brand: #c6f432;
+  --color-lime-hover: #b4e325;
+  --color-lime-light: #f3fcd4;
+  --color-lime-dark: #82a812;
+
+  --color-surface-sage: #f4f8f4;
+  --color-surface-card: #ffffff;
+  --color-surface-muted: #eef4ee;
+
+  --color-brand-border: rgba(11, 56, 44, 0.08);
+  --color-brand-border-strong: rgba(11, 56, 44, 0.16);
+}
+
+:root {
+  --background: #f4f8f4;
+  --foreground: #142922;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar for data tables and drawers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f4f0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5d6ce;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ab4aa;
+}
