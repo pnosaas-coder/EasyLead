@@ -9,13 +9,14 @@ import {
   CheckCircle2,
   Phone,
   Loader2,
+  LogOut,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/user-provider';
 import { createClient } from '@/lib/supabase/client';
 import { CURRENT_USER } from '@/lib/mock-data';
 
 export function SettingsPage() {
-  const { user, profile, refreshProfile } = useUser();
+  const { user, profile, refreshProfile, signOut } = useUser();
 
   const [name, setName] = useState(profile.fullName || CURRENT_USER.name);
   const [role, setRole] = useState(profile.role || CURRENT_USER.role);
@@ -362,6 +363,31 @@ export function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* Section Sécurité & Déconnexion */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-rose-100 shadow-[0_4px_24px_-4px_rgba(225,29,72,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <LogOut className="w-4 h-4 text-rose-600" />
+            <h2 className="font-serif text-lg font-bold text-rose-950">
+              Session Active &amp; D&eacute;connexion
+            </h2>
+          </div>
+          <p className="text-xs text-[#4f6b61]">
+            Vous &ecirc;tes connect&eacute; avec l&apos;adresse email <strong className="text-[#0b382c]">{profile.email}</strong>.
+            Cliquez pour fermer votre session sur cet appareil en toute s&eacute;curit&eacute;.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => signOut()}
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Se d&eacute;connecter</span>
+        </button>
+      </div>
     </div>
   );
 }
