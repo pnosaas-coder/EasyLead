@@ -105,7 +105,7 @@ export default function ConfidentialitePage() {
               </div>
               <div className="flex items-center gap-3 font-mono text-xs">
                 <a
-                  href="mailto:contact@easylead.africa?subject=Demande%20de%20retrait%20Opt-out"
+                  href="mailto:contact@easylead.com?subject=Demande%20de%20retrait%20Opt-out"
                   className="px-3.5 py-1.5 rounded-full bg-[#0b382c] text-white hover:bg-[#06241c] transition-colors font-bold"
                 >
                   Demande par Email

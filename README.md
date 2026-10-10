@@ -13,7 +13,7 @@
 - **Lignes Officielles :**
   - 🟡 **MTN MoMo :** `+237 677 48 11 61`
   - 🟠 **Orange Money :** `+237 691 11 49 08`
-- **Contact Support :** `contact@easylead.africa`
+- **Contact Support :** `contact@easylead.com`
 
 ---
 

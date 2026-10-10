@@ -58,7 +58,7 @@ export default function CGUPage() {
                 </span>
                 <span className="flex items-center gap-1 text-[#0b382c]">
                   <Mail className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>contact@easylead.africa</span>
+                  <span>contact@easylead.com</span>
                 </span>
               </div>
             </div>
