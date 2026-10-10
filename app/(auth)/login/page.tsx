@@ -29,7 +29,7 @@ function LoginFormContent() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [viewMode, setViewMode] = useState<'login' | 'forgot_password' | 'magic_link'>('login');
+  const [viewMode, setViewMode] = useState<'login' | 'forgot_password'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(
     urlError ? 'Échec de connexion. Veuillez vérifier vos accès et réessayer.' : null
@@ -104,7 +104,7 @@ function LoginFormContent() {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      setErrorMessage('Veuillez renseigner une adresse email valide.');
+      setErrorMessage('Veuillez renseigner votre adresse email pour recevoir le lien de réinitialisation.');
       return;
     }
 
@@ -126,38 +126,6 @@ function LoginFormContent() {
         err instanceof Error
           ? err.message
           : 'Impossible d’envoyer le lien de réinitialisation.';
-      setErrorMessage(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes('@')) {
-      setErrorMessage('Veuillez renseigner une adresse email valide.');
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim(),
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-        },
-      });
-      if (error) throw error;
-
-      setSuccessMessage(
-        `Lien magique envoyé à ${email.trim()} ! Cliquez dessus pour vous connecter sans mot de passe.`
-      );
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Erreur envoi lien magique.';
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
@@ -227,33 +195,10 @@ function LoginFormContent() {
             <span>Retour à la connexion</span>
           </button>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#0b382c] tracking-tight mb-2">
-            Mot de passe oublié ?
+            Nom d&apos;utilisateur ou mot de passe oublié ?
           </h1>
           <p className="text-sm text-[#0b382c]/70 mb-6">
-            Entrez votre adresse email pour recevoir un lien sécurisé de réinitialisation.
-          </p>
-        </>
-      )}
-
-      {viewMode === 'magic_link' && (
-        <>
-          <button
-            type="button"
-            onClick={() => {
-              setViewMode('login');
-              setErrorMessage(null);
-              setSuccessMessage(null);
-            }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0b382c]/70 hover:text-[#0b382c] mb-4 cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Retour à la connexion par mot de passe</span>
-          </button>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#0b382c] tracking-tight mb-2">
-            Connexion sans mot de passe
-          </h1>
-          <p className="text-sm text-[#0b382c]/70 mb-6">
-            Recevez un lien magique instantané dans votre boîte email.
+            Entrez votre adresse email pour recevoir un lien sécurisé de réinitialisation et récupérer l&apos;accès à votre compte.
           </p>
         </>
       )}
@@ -310,22 +255,9 @@ function LoginFormContent() {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#0b382c]/70">
-                Mot de passe
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  setViewMode('forgot_password');
-                  setErrorMessage(null);
-                  setSuccessMessage(null);
-                }}
-                className="text-xs text-[#0b382c]/70 hover:text-[#0b382c] font-semibold transition-colors cursor-pointer"
-              >
-                Nom d&apos;utilisateur ou mot de passe oublié ?
-              </button>
-            </div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#0b382c]/70 mb-1.5">
+              Mot de passe
+            </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#0b382c]/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -347,7 +279,7 @@ function LoginFormContent() {
             </div>
           </div>
 
-          {/* Option Rester Connecté */}
+          {/* Option Rester Connecté & Nom d'utilisateur ou mot de passe oublié */}
           <div className="flex items-center justify-between pt-1">
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
               <input
@@ -361,16 +293,17 @@ function LoginFormContent() {
               </span>
             </label>
 
+            {/* Remplacement du lien sans mot de passe */}
             <button
               type="button"
               onClick={() => {
-                setViewMode('magic_link');
+                setViewMode('forgot_password');
                 setErrorMessage(null);
                 setSuccessMessage(null);
               }}
-              className="text-xs text-[#0b382c]/60 hover:text-[#0b382c] transition-colors cursor-pointer"
+              className="text-xs text-[#0b382c]/70 hover:text-[#0b382c] font-semibold transition-colors cursor-pointer"
             >
-              Lien sans mot de passe ?
+              Nom d&apos;utilisateur ou mot de passe oublié ?
             </button>
           </div>
 
@@ -384,7 +317,7 @@ function LoginFormContent() {
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <span>Suivant / Se connecter</span>
+                <span>Se connecter</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -423,43 +356,6 @@ function LoginFormContent() {
               <>
                 <KeyRound className="w-4 h-4" />
                 <span>Envoyer le lien de réinitialisation</span>
-              </>
-            )}
-          </button>
-        </form>
-      )}
-
-      {/* VUE 3 : LIEN MAGIQUE */}
-      {viewMode === 'magic_link' && (
-        <form onSubmit={handleMagicLink} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#0b382c]/70 mb-1.5">
-              Votre adresse email
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-[#0b382c]/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ex: contact@easylead.com"
-                className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-[#0b382c] hover:bg-[#07251d] text-[#c6f432] font-semibold py-3.5 px-6 rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <span>Envoyer le lien magique</span>
-                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
