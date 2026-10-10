@@ -11,22 +11,143 @@ import {
   ArrowRight,
   AlertCircle,
   Loader2,
+  Gift,
+  CheckCircle2,
+  Briefcase,
+  Building,
+  HeartPulse,
+  Utensils,
+  Ship,
+  Car,
+  GraduationCap,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { AFRICAN_COUNTRIES } from '@/lib/countries';
+
+// Catégories riches de suggestions métiers et commerces en Afrique
+const CATEGORIES = [
+  {
+    id: 'metiers',
+    label: 'Artisans & Métiers',
+    icon: Briefcase,
+    items: [
+      'Plombier',
+      'Maçon',
+      'Électricien',
+      'Ferrailleur',
+      'Menuisier',
+      'Peintre en bâtiment',
+      'Mécanicien auto',
+      'Frigoriste / Froid & Climatisation',
+      'Soudeur métallier',
+      'Carreleur',
+      'Dentiste',
+      'Avocat / Cabinet juridique',
+      'Expert-comptable',
+      'Architecte BTP',
+    ],
+  },
+  {
+    id: 'btp',
+    label: 'BTP, Matériaux & Quincailleries',
+    icon: Building,
+    items: [
+      'Quincailleries & Matériaux BTP',
+      'Vente de fer à béton & Ciment',
+      'Menuiserie aluminium & Vitrerie',
+      'Carrelage & Sanitaire',
+      'Location engins de chantier',
+    ],
+  },
+  {
+    id: 'sante',
+    label: 'Santé, Pharmacies & Cliniques',
+    icon: HeartPulse,
+    items: [
+      'Pharmacie & Parapharmacie',
+      'Clinique & Centre médical',
+      'Cabinet dentaire',
+      'Laboratoire d’analyses médicales',
+      'Cabinet ophtalmologique & Opticien',
+    ],
+  },
+  {
+    id: 'hotellerie',
+    label: 'Hôtellerie & Restauration',
+    icon: Utensils,
+    items: [
+      'Hôtel & Hébergement',
+      'Restaurant & Traiteur',
+      'Résidence meublée & Appart-hôtel',
+      'Salon de thé & Pâtisserie',
+      'Salle d’événements & Réceptions',
+    ],
+  },
+  {
+    id: 'transit',
+    label: 'Transit, Douane & Logistique',
+    icon: Ship,
+    items: [
+      'Agence de transit & Douane',
+      'Transport routier & Fret maritime',
+      'Commissionnaire agréé en douane',
+      'Entrepôt sous douane & Logistique',
+    ],
+  },
+  {
+    id: 'auto',
+    label: 'Auto, Garages & Concessionnaires',
+    icon: Car,
+    items: [
+      'Garage automobile & Réparation',
+      'Concessionnaire auto (Véhicules neufs / occasion)',
+      'Vente de pièces détachées auto',
+      'Lavage auto & Entretien express',
+    ],
+  },
+  {
+    id: 'education',
+    label: 'Écoles & Universités',
+    icon: GraduationCap,
+    items: [
+      'École primaire & Collège privé',
+      'Lycée & Établissement secondaire',
+      'Université & Institut supérieur',
+      'Centre de formation professionnelle',
+    ],
+  },
+];
+
+const SUGGESTED_CITIES = [
+  { name: 'Douala', country: 'CM' },
+  { name: 'Yaoundé', country: 'CM' },
+  { name: 'Bafoussam', country: 'CM' },
+  { name: 'Kribi', country: 'CM' },
+  { name: 'Garoua', country: 'CM' },
+  { name: 'Abidjan', country: 'CI' },
+  { name: 'Dakar', country: 'SN' },
+  { name: 'Libreville', country: 'GA' },
+  { name: 'Cotonou', country: 'BJ' },
+  { name: 'Lomé', country: 'TG' },
+];
 
 export function NewSearchPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  const [sector, setSector] = useState('Quincailleries & Matériaux BTP');
+  const [activeCategory, setActiveCategory] = useState('metiers');
+  const [sector, setSector] = useState('Plombier');
   const [city, setCity] = useState('Douala');
   const [countryCode, setCountryCode] = useState('CM');
   const [maxResults, setMaxResults] = useState(50);
   const [enrichEmail, setEnrichEmail] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [userCredits, setUserCredits] = useState<number>(50);
+  const [userCredits, setUserCredits] = useState<number>(2500);
+
+  // État recharge gratuite de test
+  const [isRefilling, setIsRefilling] = useState(false);
+  const [refillSuccess, setRefillSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadUserBalance() {
@@ -42,7 +163,7 @@ export function NewSearchPage() {
             .single();
 
           if (profile) {
-            setUserCredits(profile.credits_balance ?? 50);
+            setUserCredits(profile.credits_balance ?? 2500);
             if (profile.country_code) setCountryCode(profile.country_code);
           }
         }
@@ -57,16 +178,23 @@ export function NewSearchPage() {
   const unitCost = enrichEmail ? 2 : 1;
   const totalReservedCredits = maxResults * unitCost;
 
-  const popularSectors = [
-    'Quincailleries & Matériaux BTP',
-    'Pharmacies & Parapharmacies',
-    'Hôtels & Hébergements',
-    'Cliniques & Cabinets médicaux',
-    'Écoles & Universités privées',
-    'Agences de transit & Douane',
-    'Restaurants & Traiteurs',
-    'Garages & Concessionnaires auto',
-  ];
+  const handleRefillCredits = async () => {
+    setIsRefilling(true);
+    setRefillSuccess(null);
+    try {
+      const res = await fetch('/api/credits/refill', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setUserCredits(data.newBalance);
+        setRefillSuccess('+1 000 crédits de test ajoutés à votre solde !');
+        setTimeout(() => setRefillSuccess(null), 4000);
+      }
+    } catch (err) {
+      console.error('Error refilling credits:', err);
+    } finally {
+      setIsRefilling(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +232,45 @@ export function NewSearchPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 space-y-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8">
+      {/* Top Test Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#0b382c] text-[#c6f432] flex items-center justify-center font-bold shrink-0">
+            <Zap className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wider text-[#0b382c]">
+              Phase de Test &amp; Validation Active
+            </div>
+            <p className="text-xs text-emerald-800">
+              Toutes les recherches sont 100% fonctionnelles. Vos crédits sont illimités et rechargés automatiquement si besoin.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleRefillCredits}
+          disabled={isRefilling}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b382c] hover:bg-[#07251d] text-[#c6f432] text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 disabled:opacity-50"
+        >
+          {isRefilling ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <Gift className="w-3.5 h-3.5" />
+          )}
+          <span>🎁 Recharger +1 000 crédits gratuits</span>
+        </button>
+      </div>
+
+      {refillSuccess && (
+        <div className="p-3.5 rounded-2xl bg-[#c6f432]/30 border border-[#c6f432] text-[#0b382c] text-xs font-semibold flex items-center gap-2 shadow-xs">
+          <CheckCircle2 className="w-4 h-4 text-[#0b382c]" />
+          <span>{refillSuccess}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="space-y-3">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#0b382c] border border-[#0b382c]/10 shadow-2xs">
@@ -117,8 +283,7 @@ export function NewSearchPage() {
         </h1>
 
         <p className="text-sm sm:text-base text-[#4f6b61] leading-relaxed">
-          Configurez votre recherche locale. Le scraper extrait automatiquement les coordonnées,
-          les numéros de téléphone normalisés en E.164 pour WhatsApp et les avis en temps réel.
+          Recherchez n&apos;importe quel <strong>profil métier</strong> (plombier, maçon, ferrailleur, dentiste...) ou <strong>établissement en Afrique</strong> (quincaillerie, pharmacie, transit, garage...). Les coordonnées et téléphones WhatsApp sont extraits en temps réel.
         </p>
       </div>
 
@@ -128,14 +293,6 @@ export function NewSearchPage() {
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{submitError}</span>
           </div>
-          {submitError.includes('insuffisant') && (
-            <Link
-              href="/billing"
-              className="font-bold underline text-rose-900 shrink-0"
-            >
-              Recharger mes crédits &rarr;
-            </Link>
-          )}
         </div>
       )}
 
@@ -144,78 +301,139 @@ export function NewSearchPage() {
         onSubmit={handleSubmit}
         className="bg-white rounded-3xl p-6 sm:p-8 border border-[#0b382c]/8 shadow-[0_4px_24px_-4px_rgba(11,56,44,0.04)] space-y-6"
       >
-        {/* Sector Field with Suggestions */}
-        <div className="space-y-2">
+        {/* Sector Field with Categories and Suggestion Chips */}
+        <div className="space-y-3">
           <label className="text-xs font-bold text-[#0b382c] flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Secteur d&apos;activité ou Type d&apos;établissement</span>
+              <span>Profil Métier ou Type d&apos;Établissement (Saisie libre)</span>
             </span>
-            <span className="text-[11px] text-[#4f6b61] font-normal">Texte libre</span>
+            <span className="text-[11px] text-[#4f6b61] font-normal">
+              Ex: Plombier, Dentiste, Quincaillerie BTP...
+            </span>
           </label>
-          <input
-            type="text"
-            required
-            value={sector}
-            onChange={(e) => setSector(e.target.value)}
-            placeholder="Ex: Quincaillerie, Agence de transit, Clinique..."
-            className="w-full px-4 py-3 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-medium text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all shadow-2xs"
-          />
 
-          {/* Suggestions chips */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-2">
-            <span className="text-[11px] font-semibold text-[#4f6b61] mr-1">
-              Suggestions Afrique :
-            </span>
-            {popularSectors.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSector(s)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                  sector === s
-                    ? 'bg-[#0b382c] text-white shadow-xs'
-                    : 'bg-[#f4f8f4] text-[#0b382c] hover:bg-[#e6f0eb]'
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Location Grid: City & Country */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#0b382c] flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Ville ou Quartier spécifique</span>
-            </label>
+          <div className="relative">
             <input
               type="text"
               required
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="Ex: Douala, Yaoundé, Abidjan..."
-              className="w-full px-4 py-3 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-medium text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all shadow-2xs"
+              value={sector}
+              onChange={(e) => setSector(e.target.value)}
+              placeholder="Ex: Plombier, Maçon, Pharmacie, Quincaillerie BTP..."
+              className="w-full px-4 py-3.5 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-semibold text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all shadow-2xs"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#0b382c]">
-              Pays cible
-            </label>
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="w-full px-4 py-3 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-medium text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all appearance-none cursor-pointer shadow-2xs"
-            >
-              {AFRICAN_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name} ({c.currency})
-                </option>
-              ))}
-            </select>
+          {/* Onglets de catégories pour guider l'utilisateur */}
+          <div className="space-y-2 pt-2">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-[#0b382c]/70">
+              Suggestions Afrique par catégorie (cliquez pour choisir) :
+            </div>
+
+            {/* Onglets de thématiques */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-[#0b382c] text-white shadow-xs'
+                        : 'bg-[#f4f8f4] text-[#0b382c]/80 hover:bg-[#e6f0eb]'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Chips de la catégorie sélectionnée */}
+            <div className="flex flex-wrap items-center gap-1.5 p-3 rounded-2xl bg-[#f8faf8] border border-[#0b382c]/6">
+              {CATEGORIES.find((c) => c.id === activeCategory)?.items.map((item) => {
+                const isSelected = sector.toLowerCase() === item.toLowerCase();
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setSector(item)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#0b382c] text-[#c6f432] font-bold shadow-xs scale-105'
+                        : 'bg-white text-[#0b382c] border border-[#0b382c]/10 hover:bg-[#0b382c]/5'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Location Grid: City & Country + Raccourcis Villes */}
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#0b382c] flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Ville ou Quartier spécifique</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Ex: Douala, Yaoundé, Abidjan..."
+                className="w-full px-4 py-3 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-medium text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all shadow-2xs"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#0b382c]">
+                Pays cible
+              </label>
+              <select
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                className="w-full px-4 py-3 rounded-2xl bg-[#f4f8f4] border border-[#0b382c]/10 text-sm font-medium text-[#0b382c] focus:outline-none focus:border-[#0b382c] focus:bg-white transition-all appearance-none cursor-pointer shadow-2xs"
+              >
+                {AFRICAN_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name} ({c.currency})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Raccourcis villes rapides */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[11px] font-semibold text-[#4f6b61] mr-1">
+              Villes rapides :
+            </span>
+            {SUGGESTED_CITIES.map((c) => (
+              <button
+                key={c.name}
+                type="button"
+                onClick={() => {
+                  setCity(c.name);
+                  setCountryCode(c.country);
+                }}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                  city === c.name
+                    ? 'bg-[#0b382c] text-white'
+                    : 'bg-[#f4f8f4] text-[#0b382c] hover:bg-[#e6f0eb]'
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -263,7 +481,7 @@ export function NewSearchPage() {
                   <span>Enrichissement des adresses Emails (+1 crédit/lead)</span>
                 </span>
                 <p className="text-[11px] text-[#4f6b61] mt-0.5">
-                  Le scraper explore le site web et les réseaux sociaux de l&apos;entreprise pour extraire l&apos;email.
+                  Le scraper explore le site web et les réseaux sociaux pour extraire l&apos;email en complément des numéros WhatsApp.
                 </p>
               </div>
             </label>
@@ -276,20 +494,30 @@ export function NewSearchPage() {
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#c6f432]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#c6f432]">
-                Réservation de crédits garantie
+                Réservation de crédits
               </span>
             </div>
             <p className="text-xs text-emerald-100/80 leading-relaxed max-w-md">
               {totalReservedCredits} crédits réservés ({maxResults} &times; {unitCost} cr).
-              Si Google Maps ne trouve que 42 résultats, la différence est automatiquement remboursée sur votre compte !
+              Les crédits non consommés sont automatiquement remboursés dès la fin du scraping.
             </p>
           </div>
 
-          <div className="text-right sm:border-l sm:border-emerald-800 sm:pl-6 shrink-0">
-            <div className="text-[11px] text-emerald-200">Votre solde actuel</div>
-            <div className="font-serif text-2xl font-bold text-white">
-              {userCredits} crédits
+          <div className="text-right sm:border-l sm:border-emerald-800 sm:pl-6 shrink-0 flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2">
+            <div>
+              <div className="text-[11px] text-emerald-200">Votre solde actuel</div>
+              <div className="font-serif text-2xl font-bold text-white">
+                {userCredits} crédits
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={handleRefillCredits}
+              disabled={isRefilling}
+              className="text-[11px] font-bold text-[#c6f432] underline hover:text-white cursor-pointer"
+            >
+              +1 000 cr. offerts
+            </button>
           </div>
         </div>
 

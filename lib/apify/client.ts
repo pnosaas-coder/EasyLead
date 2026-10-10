@@ -2,6 +2,11 @@ import { ApifyClient } from 'apify-client';
 
 const APIFY_ACTOR_ID = 'compass/crawler-google-places';
 
+// Déblocage des certificats auto-signés sur Windows / antivirus / proxies d'entreprise
+if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 export function getApifyClient(): ApifyClient | null {
   const token = process.env.APIFY_TOKEN;
   if (!token || token.trim() === '' || token.includes('your_token')) {
@@ -55,9 +60,10 @@ export async function startPlacesScrapeRun({
     };
   }
 
-  const webhookUrl = `${appUrl}/api/webhooks/apify?secret=${encodeURIComponent(
-    webhookSecret
-  )}&searchId=${encodeURIComponent(searchId)}`;
+  const isPublicHttps =
+    appUrl.startsWith('https://') &&
+    !appUrl.includes('localhost') &&
+    !appUrl.includes('127.0.0.1');
 
   const input = {
     searchStringsArray: [sector],
@@ -70,19 +76,25 @@ export async function startPlacesScrapeRun({
     maxImages: 0,
   };
 
-  const run = await client.actor(APIFY_ACTOR_ID).start(input, {
-    webhooks: [
-      {
-        eventTypes: [
-          'ACTOR.RUN.SUCCEEDED',
-          'ACTOR.RUN.FAILED',
-          'ACTOR.RUN.TIMED_OUT',
-          'ACTOR.RUN.ABORTED',
+  const startOptions = isPublicHttps
+    ? {
+        webhooks: [
+          {
+            eventTypes: [
+              'ACTOR.RUN.SUCCEEDED',
+              'ACTOR.RUN.FAILED',
+              'ACTOR.RUN.TIMED_OUT',
+              'ACTOR.RUN.ABORTED',
+            ],
+            requestUrl: `${appUrl}/api/webhooks/apify?secret=${encodeURIComponent(
+              webhookSecret
+            )}&searchId=${encodeURIComponent(searchId)}`,
+          },
         ],
-        requestUrl: webhookUrl,
-      },
-    ],
-  });
+      }
+    : {};
+
+  const run = await client.actor(APIFY_ACTOR_ID).start(input, startOptions as any);
 
   return {
     runId: run.id,

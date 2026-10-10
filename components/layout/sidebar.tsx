@@ -25,7 +25,7 @@ interface SidebarProps {
 
 export function Sidebar({ onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
-  const { profile, signOut } = useUser();
+  const { profile, signOut, refreshProfile } = useUser();
 
   const navItems = [
     {
@@ -230,6 +230,21 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             <span>Recharger (MTN / Orange)</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
+
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/credits/refill', { method: 'POST' });
+                if (res.ok) await refreshProfile();
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            className="w-full mt-2 text-[11px] font-bold text-center py-1.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#c6f432] transition-colors cursor-pointer"
+          >
+            🎁 +1 000 cr. Test gratuits
+          </button>
 
           {/* Quick Support Badge with official Douala line */}
           <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-emerald-200">
