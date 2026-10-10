@@ -195,7 +195,7 @@ function LoginFormContent() {
             <span>Retour à la connexion</span>
           </button>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#0b382c] tracking-tight mb-2">
-            Nom d&apos;utilisateur ou mot de passe oublié ?
+            Mot de passe oublié ?
           </h1>
           <p className="text-sm text-[#0b382c]/70 mb-6">
             Entrez votre adresse email pour recevoir un lien sécurisé de réinitialisation et récupérer l&apos;accès à votre compte.
@@ -239,16 +239,16 @@ function LoginFormContent() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#0b382c]/70 mb-1.5">
-              Nom d&apos;utilisateur ou Adresse email
+              Adresse email
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#0b382c]/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="text"
+                type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ex: contact@easylead.com ou nom d'utilisateur"
+                placeholder="ex: contact@easylead.com"
                 className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
               />
             </div>
@@ -279,7 +279,7 @@ function LoginFormContent() {
             </div>
           </div>
 
-          {/* Option Rester Connecté & Nom d'utilisateur ou mot de passe oublié */}
+          {/* Option Rester Connecté & Mot de passe oublié */}
           <div className="flex items-center justify-between pt-1">
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
               <input
@@ -293,7 +293,7 @@ function LoginFormContent() {
               </span>
             </label>
 
-            {/* Remplacement du lien sans mot de passe */}
+            {/* Lien Mot de passe oublié */}
             <button
               type="button"
               onClick={() => {
@@ -303,7 +303,7 @@ function LoginFormContent() {
               }}
               className="text-xs text-[#0b382c]/70 hover:text-[#0b382c] font-semibold transition-colors cursor-pointer"
             >
-              Nom d&apos;utilisateur ou mot de passe oublié ?
+              Mot de passe oublié ?
             </button>
           </div>
 
