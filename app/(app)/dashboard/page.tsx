@@ -7,12 +7,12 @@ import {
   Smartphone,
   ArrowRight,
   Gift,
+  Compass,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { CURRENT_USER } from '@/lib/mock-data';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { QuickSearchBox } from '@/components/dashboard/quick-search-box';
-import { InvoicesTable } from '@/components/dashboard/invoices-table';
 import { RecentSearches, RecentSearchItem } from '@/components/dashboard/recent-searches';
 import { StatMetric } from '@/lib/types';
 import { connection } from 'next/server';
@@ -83,30 +83,30 @@ export default async function DashboardPage() {
     }
   }
 
-  // Dynamic stats metrics
+  // Dynamic stats metrics (condensed)
   const stats: StatMetric[] = [
     {
       title: 'Total Leads Découverts',
       value: totalLeadsCount > 0 ? totalLeadsCount.toLocaleString('fr-FR') : (isNewAccount ? '0' : '4 820'),
       change: totalLeadsCount > 0 ? `+${totalLeadsCount} qualifiés` : '+18.4% ce mois',
       isPositive: true,
-      subtext: 'Dont WhatsApp et Emails vérifiés',
+      subtext: 'Numéros WhatsApp vérifiés',
       iconName: 'leads',
     },
     {
-      title: 'Recherches Google Places',
+      title: 'Recherches Maps',
       value: totalSearchesCount > 0 ? totalSearchesCount.toString() : (isNewAccount ? '0' : '38'),
       change: totalSearchesCount > 0 ? `${totalSearchesCount} sessions` : '+6 cette semaine',
       isPositive: true,
-      subtext: 'Douala, Yaoundé, Abidjan, Dakar',
+      subtext: 'Douala, Yaoundé, Abidjan, Dakar...',
       iconName: 'searches',
     },
     {
       title: 'Messages IA Rédigés',
       value: totalMessagesCount > 0 ? totalMessagesCount.toString() : (isNewAccount ? '0' : '1 240'),
-      change: totalMessagesCount > 0 ? `${totalMessagesCount} envoyés` : '+32.8% ouverture',
+      change: totalMessagesCount > 0 ? `${totalMessagesCount} envoyés` : '+32.8% réponse',
       isPositive: true,
-      subtext: 'WhatsApp (78%) • Email (22%)',
+      subtext: 'Approche WhatsApp & Email',
       iconName: 'messages',
     },
     {
@@ -114,133 +114,115 @@ export default async function DashboardPage() {
       value: creditsBalance.toLocaleString('fr-FR'),
       change: creditsBalance > 0 ? 'Solde Actif' : 'Recharge Requise',
       isPositive: creditsBalance > 0,
-      subtext: '1 crédit = 1 lead ou 1 message IA',
+      subtext: '1 crédit = 1 prospect complet',
       iconName: 'credits',
     },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-8">
-      {/* Editorial Hero Header (Inspired by Screenshot 1 & 2) */}
-      <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
-        <div className="max-w-3xl space-y-3">
-          {/* Tag Pill with vibrant dot */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#0b382c] border border-[#0b382c]/10 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#c6f432] ring-2 ring-[#0b382c]/20" />
-            <span>Moteur de Prospection B2B • Afrique Francophone & Anglophone</span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-8">
+      {/* 1. HERO DIRECT : L'OUTIL DE RECHERCHE EST LA STAR CENTRALE */}
+      <section className="space-y-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2 max-w-3xl">
+            {/* Tag Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#0b382c] border border-[#0b382c]/10">
+              <Compass className="w-3.5 h-3.5 text-[#0b382c]" />
+              <span>Moteur de Prospection &amp; Contacts Directs &bull; Afrique</span>
+            </div>
+
+            {/* Main Action-Oriented Title */}
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0b382c] leading-[1.15]">
+              Trouvez n&apos;importe quel contact ou professionnel en Afrique.
+            </h1>
+
+            {/* Clear subtitle */}
+            <p className="text-xs sm:text-sm text-[#4f6b61] leading-relaxed max-w-2xl">
+              Bienvenue {userName}. Con&ccedil;u pour les <strong>entrepreneurs, cr&eacute;ateurs de contenu, youtubeurs, commer&ccedil;ants et ind&eacute;pendants</strong>. 
+              Extrayez en temps r&eacute;el les coordonn&eacute;es Google Maps et num&eacute;ros WhatsApp directs.
+            </p>
           </div>
 
-          {/* Main Editorial Title in Serif font */}
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#0b382c] leading-[1.15]">
-            G&eacute;n&eacute;rez des leads qualifi&eacute;s en continu pour vos offres B2B.
-          </h1>
+          {/* Quick shortcuts */}
+          <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+            <Link
+              href="/searches/new"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#0b382c] text-white text-xs font-bold hover:bg-[#06241c] transition-all shadow-xs"
+            >
+              <Search className="w-3.5 h-3.5 text-[#c6f432]" />
+              <span>Recherche Avancée</span>
+            </Link>
 
-          {/* Description */}
-          <p className="text-sm sm:text-base text-[#4f6b61] leading-relaxed max-w-2xl">
-            Bienvenue {userName}. Scrapez Google Maps &agrave; Douala, Yaound&eacute;, Abidjan ou Dakar, 
-            identifiez les d&eacute;cisionnaires et laissez l&apos;IA r&eacute;diger vos messages WhatsApp et Emails d&apos;approche.
-          </p>
+            <Link
+              href="/billing"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#c6f432] text-[#0b382c] text-xs font-bold hover:bg-[#b5e326] transition-all shadow-xs"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>{creditsBalance} crédits</span>
+            </Link>
+          </div>
         </div>
 
-        {/* Hero Actions Pills */}
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Link
-            href="/searches/new"
-            className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-[#0b382c] hover:bg-[#06241c] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <Search className="w-4 h-4 text-[#c6f432]" />
-            <span>Nouveau Scraping Maps</span>
-          </Link>
-
-          <Link
-            href="/billing"
-            className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-[#c6f432] hover:bg-[#b5e326] text-[#0b382c] text-xs sm:text-sm font-bold shadow-xs hover:shadow transition-all hover:scale-[1.02]"
-          >
-            <Zap className="w-4 h-4" />
-            <span>Recharger ({creditsBalance} cr.)</span>
-          </Link>
-        </div>
+        {/* L'OUTIL DE RECHERCHE PRINCIPAL DIRECTEMENT EN HAUT */}
+        <QuickSearchBox />
       </section>
 
-      {/* Welcome bonus alert for new accounts */}
-      {isNewAccount && (
-        <section className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#e6f4ea] to-[#f4fbf6] border border-[#0b382c]/12 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-[#0b382c] text-[#c6f432] flex items-center justify-center font-bold shrink-0">
-              <Gift className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="font-bold text-sm text-[#0b382c]">
-                Bienvenue sur EasyLead ! Vos {creditsBalance} crédits de bienvenue sont activés.
-              </div>
-              <div className="text-xs text-[#4f6b61]">
-                Testez immédiatement le scraping Google Places ci-dessous sans carte bancaire requise.
-              </div>
-            </div>
-          </div>
-
+      {/* 2. STATS CLÉS SYNTHÉTIQUES (DISCRÈTES SOUS LA RECHERCHE) */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#4f6b61]">
+            Vue d&apos;ensemble de votre activit&eacute;
+          </h2>
           <Link
-            href="/searches/new"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b382c] text-white text-xs font-bold hover:bg-[#06241c] transition-colors shrink-0 self-start sm:self-auto"
+            href="/leads"
+            className="text-xs font-semibold text-[#0b382c] hover:underline inline-flex items-center gap-1"
           >
-            <span>Démarrer</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#c6f432]" />
+            <span>Consulter l&apos;annuaire des leads</span>
+            <ArrowRight className="w-3 h-3" />
           </Link>
-        </section>
-      )}
+        </div>
 
-      {/* 4 Stats Cards Grid */}
-      <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat) => (
             <StatCard key={stat.title} stat={stat} />
           ))}
         </div>
       </section>
 
-      {/* Interactive Quick Search Box (Connected to real Apify scraping API) */}
+      {/* 3. RECHERCHES RÉCENTES (ACCÈS DIRECT AUX RÉSULTATS) */}
       <section>
-        <QuickSearchBox />
-      </section>
-
-      {/* Recent Scraping Jobs & Invoices Table */}
-      <div className="grid grid-cols-1 gap-8">
-        {/* Recent Scraping Jobs */}
         <RecentSearches
           searches={recentSearches.length > 0 ? recentSearches : undefined}
           totalCount={totalSearchesCount > 0 ? totalSearchesCount : undefined}
         />
+      </section>
 
-        {/* Invoices and Payments Table */}
-        <InvoicesTable />
-      </div>
+      {/* 4. BANNIÈRE CONSEIL WHATSAPP DIRECT (ÉPURÉE & MOTIVANTE) */}
+      <section className="bg-[#0b382c] text-white rounded-3xl p-6 relative overflow-hidden shadow-md">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#c6f432]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* African Market Outreaching Tips / Trust Banner */}
-      <section className="bg-[#0b382c] text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-lg">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#c6f432]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-[#c6f432] border border-white/10">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Astuce de Conversion EasyLead</span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/10 text-[#c6f432]">
+              <Sparkles className="w-3 h-3" />
+              <span>Optimisation des résultats</span>
             </div>
-            <h3 className="font-serif text-2xl font-bold tracking-tight text-white">
-              WhatsApp g&eacute;n&egrave;re 4&times; plus de r&eacute;ponses que l&apos;Email en Afrique de l&apos;Ouest et Centrale.
+            <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white">
+              WhatsApp : le canal n&deg;1 pour engager des d&eacute;cideurs en Afrique.
             </h3>
-            <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-              Vos leads scrap&eacute;s incluent le num&eacute;ro normalis&eacute; au format E.164. 
-              G&eacute;n&eacute;rez un pitch concis et cliquez directement sur &laquo; Ouvrir WhatsApp &raquo; pour engager la conversation sans risque de blocage.
+            <p className="text-xs text-emerald-100/80 leading-relaxed">
+              Tous vos contacts scrap&eacute;s b&eacute;n&eacute;ficient du format international normalis&eacute;. 
+              Utilisez nos mod&egrave;les IA ou cliquez sur &laquo; Ouvrir WhatsApp &raquo; pour engager directement la discussion.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          <div className="shrink-0">
             <Link
               href="/leads"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[#c6f432] hover:bg-[#b5e326] text-[#0b382c] text-xs font-bold transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#c6f432] hover:bg-[#b5e326] text-[#0b382c] text-xs font-bold transition-all shadow-sm"
             >
-              <Smartphone className="w-4 h-4" />
-              <span>Voir mes Leads WhatsApp</span>
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>Accéder aux Leads WhatsApp</span>
             </Link>
           </div>
         </div>
@@ -248,3 +230,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+

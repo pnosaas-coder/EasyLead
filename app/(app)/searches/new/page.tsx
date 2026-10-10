@@ -20,12 +20,28 @@ import {
   Ship,
   Car,
   GraduationCap,
+  Video,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { AFRICAN_COUNTRIES } from '@/lib/countries';
 
 // Catégories riches de suggestions métiers et commerces en Afrique
 const CATEGORIES = [
+  {
+    id: 'creators',
+    label: 'Créateurs & YouTube',
+    icon: Video,
+    items: [
+      'Studio de tournage vidéo',
+      'Monteur vidéo & Podcast',
+      'Agence de création de contenu',
+      'Studio photo & Événements',
+      'Agence marketing d\'influence',
+      'Graphiste & Motion designer',
+      'Social media manager',
+      'Voix off & Production sonore',
+    ],
+  },
   {
     id: 'metiers',
     label: 'Artisans & Métiers',

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Menu,
   Coins,
@@ -14,6 +15,7 @@ import {
   ChevronDown,
   User,
   Shield,
+  Command,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/user-provider';
 
@@ -22,9 +24,22 @@ interface HeaderProps {
 }
 
 export function Header({ onToggleMobileMenu }: HeaderProps) {
+  const router = useRouter();
   const { profile, signOut } = useUser();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Raccourci clavier global Cmd+K / Ctrl+K pour ouvrir la recherche
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        router.push('/searches/new');
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [router]);
 
   // Fermer le menu lors d'un clic en dehors
   useEffect(() => {
@@ -38,8 +53,8 @@ export function Header({ onToggleMobileMenu }: HeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 bg-[#f4f8f4]/90 backdrop-blur-md border-b border-[#0b382c]/8 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-      {/* Left: Mobile Hamburger + Breadcrumb/Status */}
+    <header className="sticky top-0 z-30 bg-[#f4f8f4]/90 backdrop-blur-md border-b border-[#0b382c]/8 px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+      {/* Left: Mobile Hamburger + Brand mark */}
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -61,15 +76,28 @@ export function Header({ onToggleMobileMenu }: HeaderProps) {
         </div>
 
         {/* Desktop Breadcrumb & Market Badge */}
-        <div className="hidden lg:flex items-center gap-2 text-xs">
+        <div className="hidden xl:flex items-center gap-2 text-xs">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0b382c]/8 font-medium text-[#0b382c] shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Moteur Apify &amp; IA Op&eacute;rationnels</span>
+            <span>Moteur Maps &amp; IA Actif</span>
           </span>
-          <span className="text-neutral-400">&bull;</span>
-          <span className="text-[#4f6b61]">Devise : FCFA (XAF/XOF) &bull; Douala, CM</span>
         </div>
       </div>
+
+      {/* Center: Global Search Bar accessible directly from anywhere */}
+      <Link
+        href="/searches/new"
+        className="hidden md:flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#0b382c]/15 hover:border-[#0b382c]/40 text-xs text-[#4f6b61] hover:text-[#0b382c] shadow-2xs hover:shadow-xs transition-all w-64 lg:w-96 group cursor-pointer"
+        title="Rechercher des contacts ou des professionnels (Raccourci: ⌘K ou Ctrl+K)"
+      >
+        <Search className="w-3.5 h-3.5 text-[#0b382c] group-hover:scale-110 transition-transform shrink-0" />
+        <span className="truncate font-medium text-neutral-500 group-hover:text-[#0b382c]">
+          Rechercher (ex: studio vidéo, quincaillerie...)
+        </span>
+        <kbd className="ml-auto text-[10px] bg-[#f4f8f4] border border-[#0b382c]/12 px-1.5 py-0.5 rounded text-[#0b382c]/70 font-mono font-bold shrink-0">
+          ⌘K
+        </kbd>
+      </Link>
 
       {/* Right Actions: Credits Badge, Notifications, CTA Button, Profile Dropdown */}
       <div className="flex items-center gap-2.5 sm:gap-3">
@@ -107,11 +135,13 @@ export function Header({ onToggleMobileMenu }: HeaderProps) {
         {/* Primary CTA Button: Launch Search */}
         <Link
           href="/searches/new"
-          className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0b382c] hover:bg-[#06241c] text-white text-xs font-semibold shadow-sm transition-all hover:shadow hover:scale-[1.02]"
+          className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full bg-[#0b382c] hover:bg-[#06241c] text-white text-xs font-semibold shadow-sm transition-all hover:shadow hover:scale-[1.02]"
         >
           <Search className="w-3.5 h-3.5 text-[#c6f432]" />
-          <span>Nouvelle recherche</span>
+          <span className="hidden sm:inline">Nouvelle recherche</span>
+          <span className="sm:hidden">Chercher</span>
         </Link>
+
 
         {/* User Avatar with Interactive Dropdown Menu */}
         <div className="relative" ref={dropdownRef}>
