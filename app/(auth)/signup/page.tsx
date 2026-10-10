@@ -71,13 +71,31 @@ function SignupFormContent() {
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
-        },
-      });
-      if (error) throw error;
+      // 1. Vérifier si le provider Google est activé dans Supabase
+      const res = await fetch(
+        `/api/auth/oauth?provider=google&redirectTo=${encodeURIComponent('/onboarding')}`
+      );
+      const data = await res.json();
+
+      if (!res.ok || !data.enabled) {
+        throw new Error(
+          data.error ||
+            "L'inscription Google OAuth n'est pas encore activée dans votre console Supabase. Veuillez créer votre compte avec votre adresse email et mot de passe."
+        );
+      }
+
+      // 2. Si activé, redirection vers Google
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+          },
+        });
+        if (error) throw error;
+      }
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Erreur OAuth Google.';
