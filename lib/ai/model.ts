@@ -27,10 +27,10 @@ export function getAIModel() {
     const google = createGoogleGenerativeAI({
       apiKey: geminiKey.trim(),
     });
-    const modelName =
-      process.env.AI_MODEL && process.env.AI_MODEL.includes('gemini')
-        ? process.env.AI_MODEL
-        : 'gemini-1.5-flash';
+    let modelName = process.env.AI_MODEL || 'gemini-3.8-flash';
+    if (!modelName.includes('gemini') || modelName.includes('1.5') || modelName.includes('2.5')) {
+      modelName = 'gemini-3.8-flash';
+    }
     return google(modelName);
   }
 
@@ -60,7 +60,7 @@ export function getAIModel() {
     const google = createGoogleGenerativeAI({
       apiKey: geminiKey.trim(),
     });
-    return google('gemini-1.5-flash');
+    return google('gemini-3.8-flash');
   }
 
   // 4. Détection Claude (Anthropic direct ou via Vercel AI Gateway)
