@@ -47,6 +47,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/searches') ||
     pathname.startsWith('/leads') ||
+    pathname.startsWith('/messages') ||
+    pathname.startsWith('/exports') ||
     pathname.startsWith('/billing') ||
     pathname.startsWith('/settings') ||
     pathname.startsWith('/onboarding');
@@ -62,10 +64,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirection des utilisateurs déjà connectés vers le dashboard
-  if (user && isAuthRoute) {
+  // Redirection de la racine vers /login par défaut pour toujours afficher la page de connexion en premier
+  if (pathname === '/') {
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 

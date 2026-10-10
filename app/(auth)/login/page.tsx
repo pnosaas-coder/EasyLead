@@ -36,6 +36,8 @@ function LoginFormContent() {
   );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+
   const supabase = createClient();
 
   // Recharger l'email si l'utilisateur a coché "Rester connecté" précédemment
@@ -48,7 +50,13 @@ function LoginFormContent() {
     } catch {
       // LocalStorage indisponible
     }
-  }, []);
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        setCurrentUserEmail(user.email);
+      }
+    });
+  }, [supabase]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,6 +258,22 @@ function LoginFormContent() {
         </>
       )}
 
+      {/* Session active déjà détectée */}
+      {currentUserEmail && (
+        <div className="mb-6 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between gap-2 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Connecté : <strong>{currentUserEmail}</strong></span>
+          </div>
+          <Link
+            href="/dashboard"
+            className="font-bold underline text-[#0b382c] hover:text-black shrink-0"
+          >
+            Accéder au Dashboard &rarr;
+          </Link>
+        </div>
+      )}
+
       {/* Messages d'alerte / succès */}
       {errorMessage && (
         <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2.5">
@@ -270,16 +294,16 @@ function LoginFormContent() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-[#0b382c]/70 mb-1.5">
-              Adresse email professionnelle
+              Nom d&apos;utilisateur ou Adresse email
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#0b382c]/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="email"
+                type="text"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ex: contact@easylead.com"
+                placeholder="ex: contact@easylead.com ou nom d'utilisateur"
                 className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
               />
             </div>
@@ -299,7 +323,7 @@ function LoginFormContent() {
                 }}
                 className="text-xs text-[#0b382c]/70 hover:text-[#0b382c] font-semibold transition-colors cursor-pointer"
               >
-                Mot de passe oublié ?
+                Nom d&apos;utilisateur ou mot de passe oublié ?
               </button>
             </div>
             <div className="relative">
@@ -360,7 +384,7 @@ function LoginFormContent() {
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <span>Se connecter</span>
+                <span>Suivant / Se connecter</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
