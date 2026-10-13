@@ -222,7 +222,7 @@ export default function SearchDetailPage({
               {isCompleted && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#e5f4ef] text-emerald-800 border border-emerald-200">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Scraping Apify Terminé (100%)</span>
+                  <span>Indexation terminée (100%)</span>
                 </span>
               )}
 
@@ -232,7 +232,7 @@ export default function SearchDetailPage({
                   <span>
                     {search?.status === 'ingesting'
                       ? 'Ingestion des données...'
-                      : 'Scraping Google Places en cours...'}
+                      : 'Extraction Google Places en cours...'}
                   </span>
                 </span>
               )}
@@ -306,7 +306,7 @@ export default function SearchDetailPage({
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-emerald-700 animate-spin" />
                   <span>
-                    Extraction Google Maps en cours via Apify...
+                    Extraction Google Maps en cours...
                   </span>
                 </div>
                 <span>Actualisation automatique toutes les 3s</span>
@@ -315,9 +315,9 @@ export default function SearchDetailPage({
                 <div className="h-full bg-[#0b382c] rounded-full animate-indeterminate" />
               </div>
               <p className="text-xs text-[#4f6b61]">
-                Un run de scraping prend généralement entre 30 secondes et 2 minutes. Vous pouvez
+                L&apos;extraction prend généralement entre 30 secondes et 2 minutes. Vous pouvez
                 fermer cette page ou continuer votre navigation, vos leads seront enregistrés
-                automatiquement dès la fin du crawl.
+                automatiquement dès la fin du traitement.
               </p>
             </div>
           </div>
@@ -353,10 +353,10 @@ export default function SearchDetailPage({
         <div className="p-12 text-center bg-white rounded-3xl border border-[#0b382c]/8 space-y-3">
           <Loader2 className="w-8 h-8 animate-spin text-[#0b382c] mx-auto" />
           <h3 className="font-serif text-xl font-bold text-[#0b382c]">
-            Le robot Apify explore actuellement Google Maps...
+            Le moteur EasyLead explore actuellement Google Maps...
           </h3>
           <p className="text-xs text-[#4f6b61] max-w-md mx-auto">
-            Les premiers résultats apparaîtront ici dès que l&apos;actor aura finalisé le dataset.
+            Les premiers résultats apparaîtront ici dès la finalisation de l&apos;extraction.
           </p>
         </div>
       ) : (

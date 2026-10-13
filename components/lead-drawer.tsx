@@ -19,7 +19,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Lead, MessageChannel, LeadStatus } from '@/lib/types';
-import { CURRENT_USER } from '@/lib/mock-data';
+import { useUser } from '@/components/providers/user-provider';
 
 interface LeadDrawerProps {
   lead: Lead | null;
@@ -36,6 +36,7 @@ export function LeadDrawer({
   onStatusChange,
   onNotesChange,
 }: LeadDrawerProps) {
+  const { profile } = useUser();
   const [activeTab, setActiveTab] = useState<MessageChannel>('whatsapp');
   const [tone, setTone] = useState<'direct' | 'chaleureux' | 'professionnel'>('direct');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -70,9 +71,13 @@ export function LeadDrawer({
         `Opportunité de croissance B2B - ${lead.name}`
     );
 
+    const myName = profile?.fullName || 'Le Responsable Commercial';
+    const myCompany = profile?.companyName || 'Notre Entreprise';
+    const myEmail = profile?.email || '';
+
     setEmailBody(
       savedEmail?.body ||
-        `Bonjour à la direction de ${lead.name},\n\nJ'ai découvert vos activités à ${lead.address || lead.city || 'Douala'} et j'ai été impressionné par la régularité de vos retours clients (${lead.reviewsCount || 20} avis).\n\nChez ${CURRENT_USER.company}, nous accompagnons les entreprises de référence au Cameroun pour accélérer leur prospection commerciale B2B sans multiplier les coûts.\n\nAuriez-vous 10 minutes ce jeudi ou vendredi pour un rapide échange d'information ?\n\nBien cordialement,\n${CURRENT_USER.name}\n${CURRENT_USER.role} • ${CURRENT_USER.company}\n${CURRENT_USER.email}`
+        `Bonjour à la direction de ${lead.name},\n\nJ'ai découvert vos activités à ${lead.address || lead.city || 'Douala'} et j'ai été impressionné par la régularité de vos retours clients (${lead.reviewsCount || 20} avis).\n\nChez ${myCompany}, nous accompagnons les entreprises de référence pour accélérer leur prospection commerciale B2B sans multiplier les coûts.\n\nAuriez-vous 10 minutes ce jeudi ou vendredi pour un rapide échange d'information ?\n\nBien cordialement,\n${myName}\nDirection Commerciale • ${myCompany}${myEmail ? `\n${myEmail}` : ''}`
     );
 
     setCallScriptCustom(savedCall?.body || null);
@@ -205,8 +210,10 @@ export function LeadDrawer({
     }
   };
 
-  const defaultCallScript = {
-    intro: `« Bonjour, Philippe NOUGOUE de Prunus Engineering à Douala. Je me permets de vous contacter car j'ai vu la réputation de ${lead.name} sur Google Maps. Est-ce bien le responsable de la structure que j'ai au bout du fil ? »`,
+    const senderName = profile?.fullName || 'notre responsable';
+    const senderCompany = profile?.companyName || 'notre société';
+    const defaultCallScript = {
+      intro: `« Bonjour, ${senderName} de ${senderCompany}. Je me permets de vous contacter car j'ai vu la réputation de ${lead.name} sur Google Maps. Est-ce bien le responsable de la structure que j'ai au bout du fil ? »`,
     hook: `« J'ai remarqué que vous êtes basés à ${lead.address || lead.city} et que votre visibilité est forte. Nous avons développé une solution pour vous apporter des clients B2B ciblés sans prospection manuelle. »`,
     questions: [
       `1. Comment trouvez-vous actuellement vos nouveaux clients à ${lead.city || 'Douala'} ?`,
@@ -335,7 +342,7 @@ export function LeadDrawer({
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0b382c] flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Générateur de Prospection IA (Claude Sonnet)</span>
+                <span>Générateur de Prospection IA EasyLead</span>
               </span>
               <span className="text-[11px] text-[#4f6b61]">1 crédit / génération</span>
             </div>

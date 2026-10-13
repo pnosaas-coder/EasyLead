@@ -19,8 +19,8 @@ import {
 
 function SignupFormContent() {
   const router = useRouter();
-  const [fullName, setFullName] = useState('Philippe NOUGOUE');
-  const [companyName, setCompanyName] = useState('Prunus Engineering SARL');
+  const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -130,7 +130,7 @@ function SignupFormContent() {
             Bonus de bienvenue immédiat
           </span>
           <span className="text-xs text-[#0b382c]/90 font-medium">
-            <strong>+50 crédits offerts</strong> pour tester le scraping Google Places et l&apos;IA.
+            <strong>+5 crédits offerts</strong> : 1 prospect complet + 2 messages IA pour tester EasyLead.
           </span>
         </div>
       </div>
@@ -157,7 +157,7 @@ function SignupFormContent() {
           </h3>
           <p className="text-xs text-[#0b382c]/80 mb-4">
             Un email de confirmation vous a été envoyé à l&apos;adresse{' '}
-            <strong>{email}</strong>. Cliquez sur le lien pour activer vos 50 crédits et finaliser l&apos;onboarding.
+            <strong>{email}</strong>. Cliquez sur le lien pour activer vos 5 crédits offerts et finaliser l&apos;onboarding.
           </p>
           <Link
             href="/login"
@@ -179,7 +179,7 @@ function SignupFormContent() {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Philippe NOUGOUE"
+                placeholder="Ex: Jean Ewane"
                 className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
               />
             </div>
@@ -196,7 +196,7 @@ function SignupFormContent() {
                 required
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="Prunus Engineering SARL"
+                placeholder="Ex: Mon Entreprise SARL"
                 className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
               />
             </div>
@@ -213,7 +213,7 @@ function SignupFormContent() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="philippe@entreprise.com"
+                placeholder="contact@monentreprise.com"
                 className="w-full bg-[#f4f8f4] border border-[#0b382c]/15 rounded-2xl pl-10 pr-4 py-2.5 text-sm font-medium text-[#0b382c] placeholder-[#0b382c]/35 focus:outline-none focus:ring-2 focus:ring-[#0b382c]"
               />
             </div>
@@ -246,7 +246,7 @@ function SignupFormContent() {
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <span>Créer mon compte (+50 crédits)</span>
+                <span>Créer mon compte (+5 crédits offerts)</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

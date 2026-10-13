@@ -66,7 +66,7 @@ export default function ConfidentialitePage() {
               2. Utilisation de l&apos;Intelligence Artificielle &amp; Confidentialité
             </h2>
             <p>
-              Les prompts générés pour WhatsApp, Email et les scripts d&apos;appel sont traités via des modèles d&apos;IA de pointe (Anthropic Claude).
+              Les prompts générés pour WhatsApp, Email et les scripts d&apos;appel sont traités via des modèles d&apos;IA de pointe sécurisés.
               Vos données d&apos;offre commerciale et les données des leads sont traitées dans un environnement isolé :
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm">
@@ -83,8 +83,8 @@ export default function ConfidentialitePage() {
             </h2>
             <p>
               EasyLead ne stocke aucun mot de passe ni code secret USSD ou numéro de carte bancaire.
-              Toutes les transactions sont déléguées à l&apos;opérateur agréé <strong>CinetPay</strong>, certifié PCI-DSS
-              et relié directement aux opérateurs télécoms (MTN Mobile Money, Orange Money, Wave).
+              Toutes les transactions sont déléguées à la passerelle de paiement <strong>CinetPay</strong>,
+              reliée directement aux opérateurs Mobile Money (Orange Money, MTN Mobile Money, Moov Money, Wave, Airtel Money, M-Pesa…).
             </p>
           </section>
 

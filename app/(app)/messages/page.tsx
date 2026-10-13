@@ -247,7 +247,7 @@ export default function MessagesPage() {
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5 text-[#0b382c]" />
-            <span>Moteur IA Gemini 3.5 &bull; Cold Outreach B2B Afrique</span>
+            <span>Moteur IA EasyLead &bull; Prospection B2B Afrique</span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#0b382c]">
             Messages IA &amp; Prospection WhatsApp
@@ -430,7 +430,7 @@ export default function MessagesPage() {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Générer le message IA (Gemini Flash)</span>
+                  <span>Générer le message IA EasyLead</span>
                 </>
               )}
             </button>

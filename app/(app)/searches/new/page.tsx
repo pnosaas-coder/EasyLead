@@ -278,7 +278,7 @@ export function NewSearchPage() {
       <div className="space-y-3">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#0b382c] border border-[#0b382c]/10 shadow-2xs">
           <span className="w-2 h-2 rounded-full bg-[#c6f432] ring-2 ring-[#0b382c]/20" />
-          <span>Apify Actor : Google Places Scraper (compass/crawler-google-places)</span>
+          <span>Moteur d&apos;indexation Google Places &bull; Haute Précision</span>
         </div>
 
         <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#0b382c]">
@@ -484,7 +484,7 @@ export function NewSearchPage() {
                   <span>Enrichissement des adresses Emails (inclus)</span>
                 </span>
                 <p className="text-[11px] text-[#4f6b61] mt-0.5">
-                  Le scraper explore le site web et les réseaux sociaux pour extraire l&apos;email en complément des numéros WhatsApp.
+                  Notre moteur explore le site web et les réseaux professionnels pour extraire l&apos;email en complément des numéros WhatsApp.
                 </p>
               </div>
             </label>
@@ -502,7 +502,7 @@ export function NewSearchPage() {
             </div>
             <p className="text-xs text-emerald-100/80 leading-relaxed max-w-md">
               {totalReservedCredits} crédits réservés ({maxResults} &times; {unitCost} cr).
-              Les crédits non consommés sont automatiquement remboursés dès la fin du scraping.
+              Les crédits non consommés sont automatiquement remboursés dès la fin de l&apos;extraction.
             </p>
           </div>
 
@@ -558,7 +558,7 @@ export function NewSearchPage() {
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin text-[#c6f432]" />
-                <span>Démarrage Apify...</span>
+                <span>Démarrage de l&apos;extraction...</span>
               </>
             ) : (
               <>

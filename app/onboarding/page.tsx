@@ -161,7 +161,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="p-4 rounded-2xl bg-[#c6f432]/20 border border-[#c6f432]/50 text-[#0b382c] mb-8 text-xs font-medium leading-relaxed">
-          💡 Ces informations sont injectées dans chaque prompt Claude
+          💡 Ces informations sont injectées dans le moteur d&apos;IA commerciale EasyLead
           (WhatsApp, Email, Script d&apos;appel) pour formuler des messages sur
           mesure, crédibles et parfaitement alignés avec votre activité en
           Afrique.

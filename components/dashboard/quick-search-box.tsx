@@ -18,12 +18,27 @@ import {
   HeartPulse,
   Building2,
   Sparkles,
-  Gift,
+  Megaphone,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/user-provider';
+import { calculateSearchCost, leadsForCredits } from '@/lib/pricing';
 
 // Profils métiers ciblés pour entrepreneurs, youtubeurs, artisans et B2B
 const TARGET_ARCHETYPES = [
+  {
+    id: 'affichage',
+    label: '📢 Affichage, Régie & Publicité',
+    icon: Megaphone,
+    placeholder: 'Ex: Régie d\'affichage publicitaire, Panneaux 4x3, Communication extérieure...',
+    suggestions: [
+      'Régie d\'affichage publicitaire & Panneaux',
+      'Entreprise de communication extérieure (OOH)',
+      'Fabricant d\'enseignes & Habillage publicitaire',
+      'Affichage urbain & Panneaux 4x3',
+      'Écrans géants LED & DOOH',
+      'Imprimerie grand format & Bâches',
+    ],
+  },
   {
     id: 'creators',
     label: '🎬 Créateurs & YouTube',
@@ -103,26 +118,27 @@ const POPULAR_CITIES = [
 
 export function QuickSearchBox() {
   const router = useRouter();
-  const { profile, refreshProfile } = useUser();
+  const { profile, isLoading, refreshProfile } = useUser();
 
   const [activeArchetype, setActiveArchetype] = useState('creators');
   const [sector, setSector] = useState('Studio de tournage vidéo');
   const [city, setCity] = useState('Douala');
   const [countryCode, setCountryCode] = useState('CM');
-  const [maxResults, setMaxResults] = useState(20);
-  const [enrichEmail, setEnrichEmail] = useState(false);
+  const [chosenMaxResults, setMaxResults] = useState<number | null>(null);
+  const [enrichEmail, setEnrichEmail] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  // Recharge rapide de crédits en mode test
-  const [isRefilling, setIsRefilling] = useState(false);
-  const [refillSuccess, setRefillSuccess] = useState<string | null>(null);
 
   const currentArchetypeConfig =
     TARGET_ARCHETYPES.find((a) => a.id === activeArchetype) || TARGET_ARCHETYPES[0];
 
-  // Calcul du coût : 1 crédit par prospect (+ 1 si enrichissement email coché)
-  const creditCost = maxResults * (enrichEmail ? 2 : 1);
+  // Tant que l'utilisateur n'a pas choisi, proposer un volume finançable (5 crédits offerts → 1 prospect)
+  const maxResults =
+    chosenMaxResults ??
+    (isLoading ? 20 : Math.max(1, Math.min(20, leadsForCredits(profile.creditsBalance))));
+
+  // Calcul du coût : 3 crédits par prospect, enrichissement email inclus
+  const creditCost = calculateSearchCost(maxResults);
   const hasEnoughCredits = profile.creditsBalance >= creditCost;
 
   const handleSelectArchetype = (archId: string) => {
@@ -130,26 +146,6 @@ export function QuickSearchBox() {
     const arch = TARGET_ARCHETYPES.find((a) => a.id === archId);
     if (arch && arch.suggestions.length > 0) {
       setSector(arch.suggestions[0]);
-    }
-  };
-
-  const handleRefillCredits = async () => {
-    setIsRefilling(true);
-    setErrorMessage(null);
-    try {
-      const res = await fetch('/api/credits/refill', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok) {
-        await refreshProfile();
-        setRefillSuccess('+1 000 crédits de test ajoutés à votre compte !');
-        setTimeout(() => setRefillSuccess(null), 4000);
-      } else {
-        setErrorMessage(data.error || 'Erreur lors de la recharge.');
-      }
-    } catch {
-      setErrorMessage('Erreur lors de la recharge gratuite.');
-    } finally {
-      setIsRefilling(false);
     }
   };
 
@@ -259,23 +255,14 @@ export function QuickSearchBox() {
             </div>
           </div>
           {!hasEnoughCredits && (
-            <button
-              type="button"
-              onClick={handleRefillCredits}
-              disabled={isRefilling}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0b382c] text-[#c6f432] text-xs font-bold shrink-0 hover:bg-[#06241c] transition-colors cursor-pointer"
+            <Link
+              href="/billing"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0b382c] text-[#c6f432] text-xs font-bold shrink-0 hover:bg-[#06241c] transition-colors"
             >
-              <Gift className="w-3.5 h-3.5" />
-              <span>{isRefilling ? 'Recharge...' : '+1 000 crédits offerts'}</span>
-            </button>
+              <Coins className="w-3.5 h-3.5" />
+              <span>Acheter des crédits</span>
+            </Link>
           )}
-        </div>
-      )}
-
-      {refillSuccess && (
-        <div className="mb-5 p-3.5 rounded-2xl bg-[#c6f432]/30 border border-[#c6f432] text-[#0b382c] text-xs font-bold flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#0b382c]" />
-          <span>{refillSuccess}</span>
         </div>
       )}
 
@@ -386,8 +373,8 @@ export function QuickSearchBox() {
           {/* Options: Volume & Email */}
           <div className="flex flex-wrap items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2 text-xs font-bold text-[#0b382c]">
-              <span className="text-[#4f6b61] font-normal">Volume :</span>
-              {[10, 20, 50].map((num) => (
+              <span className="text-[#4f6b61] font-normal">Prospects :</span>
+              {[1, 5, 10, 20, 50].map((num) => (
                 <button
                   key={num}
                   type="button"
@@ -398,7 +385,7 @@ export function QuickSearchBox() {
                       : 'bg-[#f4f8f4] text-[#4f6b61] hover:text-[#0b382c]'
                   }`}
                 >
-                  {num} contacts
+                  {num}
                 </button>
               ))}
             </div>
@@ -412,7 +399,7 @@ export function QuickSearchBox() {
               />
               <span className="flex items-center gap-1">
                 <Mail className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Enrichir emails (+1 cr./contact)</span>
+                <span>Enrichir emails (inclus)</span>
               </span>
             </label>
           </div>

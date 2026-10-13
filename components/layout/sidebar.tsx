@@ -18,6 +18,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useUser } from '@/components/providers/user-provider';
+import { CREDIT_COSTS } from '@/lib/pricing';
 
 interface SidebarProps {
   onCloseMobile?: () => void;
@@ -25,7 +26,7 @@ interface SidebarProps {
 
 export function Sidebar({ onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
-  const { profile, signOut, refreshProfile } = useUser();
+  const { profile, signOut } = useUser();
 
   const navItems = [
     {
@@ -192,7 +193,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
           </p>
           <div className="flex items-center gap-1 text-[10px] text-[#0b382c] font-medium pt-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Apify Google Places connect&eacute;</span>
+            <span>Moteur d&apos;indexation EasyLead actif</span>
           </div>
         </div>
 
@@ -219,7 +220,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
           </div>
 
           <p className="text-[11px] text-emerald-100/80 mb-3.5 leading-relaxed">
-            1 cr&eacute;dit = 1 lead qualifi&eacute; ou 1 message IA personnalis&eacute;.
+            {CREDIT_COSTS.PER_LEAD} cr&eacute;dits = 1 prospect complet &bull; {CREDIT_COSTS.PER_AI_MESSAGE} cr&eacute;dit = 1 message IA.
           </p>
 
           <Link
@@ -227,24 +228,9 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
             onClick={onCloseMobile}
             className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-full bg-[#c6f432] hover:bg-[#b5e326] text-[#0b382c] text-xs font-bold transition-colors shadow-sm"
           >
-            <span>Recharger (MTN / Orange)</span>
+            <span>Acheter des cr&eacute;dits (Mobile Money)</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
-
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                const res = await fetch('/api/credits/refill', { method: 'POST' });
-                if (res.ok) await refreshProfile();
-              } catch (e) {
-                console.error(e);
-              }
-            }}
-            className="w-full mt-2 text-[11px] font-bold text-center py-1.5 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#c6f432] transition-colors cursor-pointer"
-          >
-            🎁 +1 000 cr. Test gratuits
-          </button>
 
           {/* Quick Support Badge with official Douala line */}
           <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-emerald-200">

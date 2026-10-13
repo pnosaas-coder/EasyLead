@@ -105,7 +105,7 @@ export function SettingsPage() {
 
         <p className="text-sm sm:text-base text-[#4f6b61] leading-relaxed">
           Configurez votre profil et les d&eacute;tails de votre offre commerciale. 
-          Ces informations sont automatiquement inject&eacute;es dans les prompts IA Claude pour r&eacute;diger des messages ultra-cibl&eacute;s.
+          Ces informations sont automatiquement inject&eacute;es dans le moteur d&apos;IA commerciale EasyLead pour r&eacute;diger des messages ultra-cibl&eacute;s.
         </p>
       </div>
 

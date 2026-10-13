@@ -70,20 +70,20 @@ export default async function SearchesPage() {
         <div className="max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#0b382c] border border-[#0b382c]/10 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-[#c6f432] ring-2 ring-[#0b382c]/20" />
-            <span>Historique Apify Google Places Scraper</span>
+            <span>Historique d&apos;indexation Google Places</span>
             {isUsingRealData && (
               <span className="text-[11px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-full">
-                Données Live Supabase
+                Données Live
               </span>
             )}
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#0b382c] leading-[1.15]">
-            Historique de vos Scrapings
+            Historique de vos Recherches
           </h1>
 
           <p className="text-sm sm:text-base text-[#4f6b61] leading-relaxed max-w-2xl">
-            Retrouvez toutes vos campagnes de scraping exécutées sur Google Maps. 
+            Retrouvez toutes vos recherches de contacts exécutées sur Google Maps. 
             Consultez les entreprises trouvées, téléchargez vos fichiers CSV et relancez vos prospections.
           </p>
         </div>

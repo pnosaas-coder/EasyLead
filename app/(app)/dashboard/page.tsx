@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { CURRENT_USER } from '@/lib/mock-data';
+import { CREDIT_COSTS } from '@/lib/pricing';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { QuickSearchBox } from '@/components/dashboard/quick-search-box';
 import { RecentSearches, RecentSearchItem } from '@/components/dashboard/recent-searches';
@@ -26,8 +27,8 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let userName = CURRENT_USER.name;
-  let creditsBalance = CURRENT_USER.creditsBalance;
+  let userName = 'Utilisateur';
+  let creditsBalance = 0;
   let recentSearches: RecentSearchItem[] = [];
   let totalSearchesCount = 0;
   let totalLeadsCount = 0;
@@ -42,8 +43,8 @@ export default async function DashboardPage() {
       .single();
 
     if (profile) {
-      userName = profile.full_name || user.email?.split('@')[0] || CURRENT_USER.name;
-      creditsBalance = profile.credits_balance ?? 50;
+      userName = profile.full_name || user.email?.split('@')[0] || 'Utilisateur';
+      creditsBalance = profile.credits_balance ?? 0;
     }
 
     const [
@@ -114,7 +115,7 @@ export default async function DashboardPage() {
       value: creditsBalance.toLocaleString('fr-FR'),
       change: creditsBalance > 0 ? 'Solde Actif' : 'Recharge Requise',
       isPositive: creditsBalance > 0,
-      subtext: '1 crédit = 1 prospect complet',
+      subtext: `${CREDIT_COSTS.PER_LEAD} crédits = 1 prospect complet`,
       iconName: 'credits',
     },
   ];

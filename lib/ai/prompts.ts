@@ -109,9 +109,9 @@ Téléphone : ${ctx.lead.phone || 'Non spécifié'}
 
   const senderData = `
 <EXPEDITEUR>
-Nom du responsable : ${ctx.profile.full_name || 'Philippe NOUGOUE'}
-Entreprise : ${ctx.profile.company_name || 'Prunus Engineering SARL'}
-Offre de services : ${ctx.profile.offer_description || 'Services digitaux et ingénierie pour PME'}
+Nom du responsable : ${ctx.profile.full_name || 'Le Responsable Commercial'}
+Entreprise : ${ctx.profile.company_name || 'Notre Entreprise'}
+Offre de services : ${ctx.profile.offer_description || 'Solutions et prestations professionnelles B2B'}
 Cible idéale : ${ctx.profile.target_description || 'Directeurs et gérants d’entreprises'}
 </EXPEDITEUR>
 `;

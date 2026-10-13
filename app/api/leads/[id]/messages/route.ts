@@ -89,8 +89,8 @@ export async function POST(
       customInstructions,
       lead,
       profile: profile || {
-        full_name: 'Philippe NOUGOUE',
-        company_name: 'Prunus Engineering SARL',
+        full_name: 'Le Responsable Commercial',
+        company_name: 'Notre Entreprise',
         offer_description:
           'Solutions logicielles et ingénierie de croissance pour PME',
         target_description: 'Responsables et dirigeants d’entreprises',
@@ -207,8 +207,8 @@ function generateSimulatedMessage(
   language: MessageLanguage
 ): string {
   const isFr = language === 'fr';
-  const senderName = profile?.full_name || 'Philippe NOUGOUE';
-  const senderCompany = profile?.company_name || 'Prunus Engineering';
+  const senderName = profile?.full_name || 'Le Responsable Commercial';
+  const senderCompany = profile?.company_name || 'Notre Entreprise';
 
   if (channel === 'whatsapp') {
     return isFr

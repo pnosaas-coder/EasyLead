@@ -13,8 +13,10 @@ import {
 } from 'lucide-react';
 import { Invoice } from '@/lib/types';
 import { MOCK_INVOICES } from '@/lib/mock-data';
+import { useUser } from '@/components/providers/user-provider';
 
 export function InvoicesTable() {
+  const { profile } = useUser();
   const [invoices, setInvoices] = useState<Invoice[]>(MOCK_INVOICES);
   const [filter, setFilter] = useState<'all' | 'succeeded' | 'pending'>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,6 +91,13 @@ export function InvoicesTable() {
             )}
           </div>
         );
+      case 'cinetpay':
+        return (
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#0b382c]" />
+            <span className="font-semibold text-[#0b382c]">CinetPay (Mobile Money)</span>
+          </div>
+        );
       case 'moov':
         return (
           <div className="flex items-center gap-1.5">
@@ -116,11 +125,11 @@ export function InvoicesTable() {
     }
   };
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number, currency: string = 'XAF') => {
     if (amount === 0) return 'Gratuit (Offert)';
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'XAF',
+      currency,
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -133,17 +142,17 @@ export function InvoicesTable() {
 ========================================
 Réf. Facture    : ${inv.reference}
 Date & Heure    : ${inv.date}
-Client          : Philippe NOUGOUE
-Entreprise      : EasyLead SARL / Douala, Cameroun
+Client          : ${profile?.fullName || 'Client EasyLead'}
+Entreprise      : ${profile?.companyName || 'Compte Professionnel'}
 Ligne MTN       : +237 677 48 11 61
 Ligne Orange    : +237 691 11 49 08
 ----------------------------------------
 Description     : ${inv.packName}
 Crédits Ajoutés : +${inv.credits} crédits EasyLead
 Moyen de Paiement: ${inv.paymentMethod.toUpperCase()} ${inv.phoneNumber || ''}
-Montant TTC     : ${formatAmount(inv.amount)}
+Montant TTC     : ${formatAmount(inv.amount, inv.currency)}
 Statut          : PAYÉ (VALIDÉ)
-Passerelle      : CinetPay Mobile Money
+Passerelle      : CinetPay (Mobile Money)
 ========================================
 Merci pour votre confiance.
 EasyLead - Moteur B2B Google Maps pour l'Afrique
@@ -279,7 +288,7 @@ https://easylead.africa
 
                 {/* Amount in FCFA */}
                 <td className="py-4 px-6 font-semibold text-[#0b382c]">
-                  {formatAmount(inv.amount)}
+                  {formatAmount(inv.amount, inv.currency)}
                 </td>
 
                 {/* Credits */}
@@ -357,7 +366,7 @@ https://easylead.africa
 
               <div className="text-right">
                 <div className="font-bold text-sm text-[#0b382c]">
-                  {formatAmount(inv.amount)}
+                  {formatAmount(inv.amount, inv.currency)}
                 </div>
                 <div className="text-[11px] font-bold text-emerald-700">
                   +{inv.credits} cr&eacute;dits
@@ -382,7 +391,7 @@ https://easylead.africa
       {/* Table Footer info */}
       <div className="p-4 sm:p-5 bg-[#f8faf8] border-t border-[#0b382c]/6 flex flex-col sm:flex-row items-center justify-between text-xs text-[#4f6b61] gap-2">
         <div className="flex items-center gap-2">
-          <span>Paiements s&eacute;curis&eacute;s par passerelle CinetPay & Op&eacute;rateurs T&eacute;l&eacute;coms.</span>
+          <span>Paiements s&eacute;curis&eacute;s par CinetPay & Op&eacute;rateurs T&eacute;l&eacute;coms.</span>
         </div>
         <div className="font-semibold text-[#0b382c]">
           Affichage de {filteredInvoices.length} sur {invoices.length} factures
