@@ -11,8 +11,7 @@ import {
   ArrowRight,
   AlertCircle,
   Loader2,
-  Gift,
-  CheckCircle2,
+  Coins,
   Briefcase,
   Building,
   HeartPulse,
@@ -21,12 +20,31 @@ import {
   Car,
   GraduationCap,
   Video,
+  Megaphone,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { AFRICAN_COUNTRIES } from '@/lib/countries';
+import { CREDIT_COSTS, calculateSearchCost, leadsForCredits } from '@/lib/pricing';
+
+const RESULT_OPTIONS = [1, 5, 10, 20, 50, 100, 200];
 
 // Catégories riches de suggestions métiers et commerces en Afrique
 const CATEGORIES = [
+  {
+    id: 'affichage_com',
+    label: 'Affichage, Régies & Publicité',
+    icon: Megaphone,
+    items: [
+      'Régie d\'affichage publicitaire & Panneaux',
+      'Entreprise de communication extérieure (OOH)',
+      'Fabricant d\'enseignes & Habillage publicitaire',
+      'Affichage urbain & Panneaux 4x3',
+      'Écrans géants LED & Affichage dynamique (DOOH)',
+      'Imprimerie grand format & Bâches',
+      'Agence de publicité & Médias',
+      'Pose et maintenance de panneaux publicitaires',
+    ],
+  },
   {
     id: 'creators',
     label: 'Créateurs & YouTube',
@@ -155,15 +173,11 @@ export function NewSearchPage() {
   const [sector, setSector] = useState('Plombier');
   const [city, setCity] = useState('Douala');
   const [countryCode, setCountryCode] = useState('CM');
-  const [maxResults, setMaxResults] = useState(50);
+  const [maxResults, setMaxResults] = useState(20);
   const [enrichEmail, setEnrichEmail] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [userCredits, setUserCredits] = useState<number>(2500);
-
-  // État recharge gratuite de test
-  const [isRefilling, setIsRefilling] = useState(false);
-  const [refillSuccess, setRefillSuccess] = useState<string | null>(null);
+  const [userCredits, setUserCredits] = useState<number>(0);
 
   useEffect(() => {
     async function loadUserBalance() {
@@ -179,7 +193,10 @@ export function NewSearchPage() {
             .single();
 
           if (profile) {
-            setUserCredits(profile.credits_balance ?? 2500);
+            const balance = profile.credits_balance ?? 0;
+            setUserCredits(balance);
+            // Pré-sélectionner un volume finançable (ex : 5 crédits offerts → 1 prospect)
+            setMaxResults((prev) => Math.max(1, Math.min(prev, leadsForCredits(balance))));
             if (profile.country_code) setCountryCode(profile.country_code);
           }
         }
@@ -190,27 +207,10 @@ export function NewSearchPage() {
     loadUserBalance();
   }, [supabase]);
 
-  // Calcul du coût unitaire
-  const unitCost = enrichEmail ? 2 : 1;
-  const totalReservedCredits = maxResults * unitCost;
-
-  const handleRefillCredits = async () => {
-    setIsRefilling(true);
-    setRefillSuccess(null);
-    try {
-      const res = await fetch('/api/credits/refill', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok) {
-        setUserCredits(data.newBalance);
-        setRefillSuccess('+1 000 crédits de test ajoutés à votre solde !');
-        setTimeout(() => setRefillSuccess(null), 4000);
-      }
-    } catch (err) {
-      console.error('Error refilling credits:', err);
-    } finally {
-      setIsRefilling(false);
-    }
-  };
+  // 3 crédits par prospect, enrichissement email inclus
+  const unitCost = CREDIT_COSTS.PER_LEAD;
+  const totalReservedCredits = calculateSearchCost(maxResults);
+  const hasEnoughCredits = userCredits >= totalReservedCredits;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,7 +249,7 @@ export function NewSearchPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 space-y-8">
-      {/* Top Test Banner */}
+      {/* Credits Pricing Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[#0b382c] text-[#c6f432] flex items-center justify-center font-bold shrink-0">
@@ -257,35 +257,22 @@ export function NewSearchPage() {
           </div>
           <div>
             <div className="text-xs font-bold uppercase tracking-wider text-[#0b382c]">
-              Phase de Test &amp; Validation Active
+              1 prospect complet = {unitCost} cr&eacute;dits
             </div>
             <p className="text-xs text-emerald-800">
-              Toutes les recherches sont 100% fonctionnelles. Vos crédits sont illimités et rechargés automatiquement si besoin.
+              Téléphone, lien WhatsApp, site web et email inclus. Seuls les prospects réellement trouvés sont facturés.
             </p>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefillCredits}
-          disabled={isRefilling}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b382c] hover:bg-[#07251d] text-[#c6f432] text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0 disabled:opacity-50"
+        <Link
+          href="/billing"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b382c] hover:bg-[#07251d] text-[#c6f432] text-xs font-bold transition-all shadow-xs shrink-0"
         >
-          {isRefilling ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <Gift className="w-3.5 h-3.5" />
-          )}
-          <span>🎁 Recharger +1 000 crédits gratuits</span>
-        </button>
+          <Coins className="w-3.5 h-3.5" />
+          <span>Acheter des crédits</span>
+        </Link>
       </div>
-
-      {refillSuccess && (
-        <div className="p-3.5 rounded-2xl bg-[#c6f432]/30 border border-[#c6f432] text-[#0b382c] text-xs font-semibold flex items-center gap-2 shadow-xs">
-          <CheckCircle2 className="w-4 h-4 text-[#0b382c]" />
-          <span>{refillSuccess}</span>
-        </div>
-      )}
 
       {/* Header */}
       <div className="space-y-3">
@@ -465,8 +452,8 @@ export function NewSearchPage() {
               </p>
             </div>
 
-            <div className="inline-flex rounded-full bg-white p-1 border border-[#0b382c]/10 text-xs">
-              {[20, 50, 100, 200].map((num) => (
+            <div className="inline-flex flex-wrap rounded-3xl bg-white p-1 border border-[#0b382c]/10 text-xs">
+              {RESULT_OPTIONS.map((num) => (
                 <button
                   key={num}
                   type="button"
@@ -477,7 +464,7 @@ export function NewSearchPage() {
                       : 'text-[#4f6b61] hover:text-[#0b382c]'
                   }`}
                 >
-                  {num} leads
+                  {num} {num > 1 ? 'leads' : 'lead'}
                 </button>
               ))}
             </div>
@@ -494,7 +481,7 @@ export function NewSearchPage() {
               <div>
                 <span className="text-xs font-bold text-[#0b382c] flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Enrichissement des adresses Emails (+1 crédit/lead)</span>
+                  <span>Enrichissement des adresses Emails (inclus)</span>
                 </span>
                 <p className="text-[11px] text-[#4f6b61] mt-0.5">
                   Le scraper explore le site web et les réseaux sociaux pour extraire l&apos;email en complément des numéros WhatsApp.
@@ -526,16 +513,33 @@ export function NewSearchPage() {
                 {userCredits} crédits
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleRefillCredits}
-              disabled={isRefilling}
-              className="text-[11px] font-bold text-[#c6f432] underline hover:text-white cursor-pointer"
+            <Link
+              href="/billing"
+              className="text-[11px] font-bold text-[#c6f432] underline hover:text-white"
             >
-              +1 000 cr. offerts
-            </button>
+              Recharger mes crédits
+            </Link>
           </div>
         </div>
+
+        {!hasEnoughCredits && (
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+              <span>
+                Solde insuffisant : cette recherche n&eacute;cessite {totalReservedCredits} cr&eacute;dits.
+                Votre solde permet {leadsForCredits(userCredits)} prospect(s).
+              </span>
+            </div>
+            <Link
+              href="/billing"
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0b382c] text-[#c6f432] font-bold shrink-0 hover:bg-[#06241c] transition-colors"
+            >
+              <Coins className="w-3.5 h-3.5" />
+              <span>Acheter des cr&eacute;dits</span>
+            </Link>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex items-center justify-between pt-2">
